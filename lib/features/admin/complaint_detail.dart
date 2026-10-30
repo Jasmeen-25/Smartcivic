@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
 import '../ai_detection/ai_result.dart';
 import '../ai_detection/ai_result_panel.dart';
+import '../ai_detection/manual_category_picker.dart';
 import 'widgets/status_badge.dart';
 
 /// Complaint Details screen for admins.
 /// Takes one complaint as a Map. Keys follow the PROPOSED team schema
 /// (not yet confirmed by Member 5).
-class ComplaintDetail extends StatelessWidget {
+class ComplaintDetail extends StatefulWidget {
   final Map<String, dynamic> complaint;
 
   const ComplaintDetail({super.key, required this.complaint});
 
+  @override
+  State<ComplaintDetail> createState() => _ComplaintDetailState();
+}
+
+class _ComplaintDetailState extends State<ComplaintDetail> {
+  // The category the admin picked by hand. Starts empty.
+  // NOT saved anywhere yet.
+  String? _manualCategory;
+
   // Safely read a value. Shows "Not provided" if it is missing.
   String _text(String key) {
-    final value = complaint[key];
+    final value = widget.complaint[key];
     if (value == null || value.toString().trim().isEmpty) {
       return 'Not provided';
     }
     return value.toString();
   }
 
-  void _showMessage(BuildContext context, String message) {
+  void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
@@ -28,8 +38,8 @@ class ComplaintDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String imageUrl = (complaint['imageUrl'] ?? '').toString();
-    final dynamic aiResult = complaint['aiResult'];
+    final String imageUrl = (widget.complaint['imageUrl'] ?? '').toString();
+    final AiResult? aiResult = AiResult.fromMap(widget.complaint['aiResult']);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Complaint Details')),
@@ -105,7 +115,22 @@ class ComplaintDetail extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            AiResultPanel(result: AiResult.fromMap(aiResult)),
+            if (aiResult != null)
+              AiResultPanel(result: aiResult)
+            else ...[
+              ManualCategoryPicker(
+                selected: _manualCategory,
+                onChanged: (value) {
+                  setState(() => _manualCategory = value);
+                  _showMessage('Category chosen. Not saved yet.');
+                },
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'This choice is not saved to Firebase yet.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
             const Divider(height: 32),
 
             // ---------- Admin actions ----------
@@ -123,16 +148,14 @@ class ComplaintDetail extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () =>
-                        _showMessage(context, 'Verify: not connected yet'),
+                    onPressed: () => _showMessage('Verify: not connected yet'),
                     child: const Text('Verify'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () =>
-                        _showMessage(context, 'Reject: not connected yet'),
+                    onPressed: () => _showMessage('Reject: not connected yet'),
                     child: const Text('Reject'),
                   ),
                 ),
@@ -143,7 +166,7 @@ class ComplaintDetail extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () =>
-                    _showMessage(context, 'Assign team: not connected yet'),
+                    _showMessage('Assign team: not connected yet'),
                 child: const Text('Assign Repair Team'),
               ),
             ),
@@ -152,7 +175,7 @@ class ComplaintDetail extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () =>
-                    _showMessage(context, 'Mark repaired: not connected yet'),
+                    _showMessage('Mark repaired: not connected yet'),
                 child: const Text('Mark as Repaired'),
               ),
             ),
