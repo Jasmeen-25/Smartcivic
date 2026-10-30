@@ -83,7 +83,7 @@ class _ComplaintDetailState extends State<ComplaintDetail> {
               children: [
                 Expanded(
                   child: Text(
-                    'Complaint ID: ${_text('id')}',
+                    'Complaint ID: ${_text('reportId')}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
