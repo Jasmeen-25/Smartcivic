@@ -1,17 +1,24 @@
-# smartcivic
+# SmartCivic
 
-A new Flutter project.
+A Flutter-based civic issue reporting and management application built for Hackathon 2.0.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project is built using Flutter and Firebase.
 
-A few resources to get you started if this is your first Flutter project:
+### Setup
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+1. Install Flutter and set up your development environment.
+2. Clone this repository.
+3. Run `flutter pub get` to install dependencies.
+4. Run `flutter run` to launch the application.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Tech Stack
+
+- Flutter
+- Firebase Authentication
+- Cloud Firestore
+
+## Project Goal
+
+To make civic issue reporting, tracking, and management easier through a digital platform.
