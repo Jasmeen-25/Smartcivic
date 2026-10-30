@@ -1,5 +1,6 @@
-// Code is Excited from Claude and modified by the team.
 import 'package:flutter/material.dart';
+import '../ai_detection/ai_result.dart';
+import '../ai_detection/ai_result_panel.dart';
 import 'widgets/status_badge.dart';
 
 /// Complaint Details screen for admins.
@@ -104,23 +105,7 @@ class ComplaintDetail extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            if (aiResult is Map)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _infoRow('AI Category', '${aiResult['damageType'] ?? 'Not provided'}'),
-                  _infoRow('Confidence', '${aiResult['confidence'] ?? 'Not provided'}'),
-                  const Text(
-                    'AI assists the admin. It does not approve complaints.',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              )
-            else
-              const Text(
-                'AI result not available',
-                style: TextStyle(color: Colors.grey),
-              ),
+            AiResultPanel(result: AiResult.fromMap(aiResult)),
             const Divider(height: 32),
 
             // ---------- Admin actions ----------
