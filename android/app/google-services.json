@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "108456280819",
+    "project_id": "smartcivic-50f39",
+    "storage_bucket": "smartcivic-50f39.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:108456280819:android:b9120f2a13444134d6ad86",
+        "android_client_info": {
+          "package_name": "com.example.smartcivic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDupa1gKi9gzH14rAwon64mxkgwq6DMC6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
