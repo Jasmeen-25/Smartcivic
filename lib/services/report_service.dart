@@ -10,9 +10,15 @@ class ReportService {
 
   final String _collection = 'reports';
 
-  // Submit a new complaint
+  static const int rewardPoints = 10;
+
+  // Submit report and credit 10 points atomically.
   Future<String> submitReport(Report report) async {
     final docRef = _firestore.collection(_collection).doc();
+
+    final userRef = _firestore
+        .collection('users')
+        .doc(report.userId);
 
     final newReport = Report(
       reportId: docRef.id,
@@ -24,15 +30,31 @@ class ReportService {
       longitude: report.longitude,
       status: ReportStatus.pending,
       createdAt: report.createdAt,
-      rewardCredited: false,
+      rewardCredited: true,
+      aiResult: report.aiResult,
+      assignedTeam: report.assignedTeam,
     );
 
-    await docRef.set(newReport.toMap());
+    await _firestore.runTransaction((transaction) async {
+      final userSnapshot = await transaction.get(userRef);
+
+      if (!userSnapshot.exists) {
+        throw StateError('User profile does not exist.');
+      }
+
+      transaction.set(docRef, newReport.toMap());
+
+      transaction.update(userRef, {
+        'rewardPoints': FieldValue.increment(rewardPoints),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'lastRewardReportId': docRef.id,
+      });
+    });
 
     return docRef.id;
   }
 
-  // Get all reports submitted by a user
+  // Get user's reports.
   Future<List<Report>> getMyReports(String userId) async {
     final snapshot = await _firestore
         .collection(_collection)
@@ -44,7 +66,7 @@ class ReportService {
         .toList();
   }
 
-  // Get a report by ID
+  // Get report by ID.
   Future<Report?> getReportById(String reportId) async {
     final doc = await _firestore
         .collection(_collection)
@@ -58,7 +80,7 @@ class ReportService {
     return Report.fromMap(doc.data()!);
   }
 
-  // Update report status
+  // Update report status.
   Future<void> updateReportStatus(
     String reportId,
     String newStatus,
@@ -73,7 +95,7 @@ class ReportService {
         .update({'status': newStatus});
   }
 
-  // Listen to user's reports in real time
+  // Watch user's reports.
   Stream<List<Report>> watchMyReports(String userId) {
     return _firestore
         .collection(_collection)

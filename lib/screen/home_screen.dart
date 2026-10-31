@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'camera_screen.dart';
+import 'my_reports_screen.dart';
+import 'nearby_garbage_screen.dart';
+import 'smart_rewards_screen.dart';
 import '../features/auth/auth_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,6 +15,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F8F3),
+
       appBar: AppBar(
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
@@ -26,6 +30,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -38,7 +43,9 @@ class HomeScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
             const SizedBox(height: 8),
+
             const Text(
               'Report waste. Take action. Earn rewards.',
               style: TextStyle(
@@ -46,8 +53,10 @@ class HomeScreen extends StatelessWidget {
                 fontSize: 14,
               ),
             ),
+
             const SizedBox(height: 25),
 
+            // WELCOME BANNER
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(22),
@@ -98,6 +107,7 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 15),
 
+            // REPORT GARBAGE
             _menuCard(
               icon: Icons.camera_alt,
               title: 'Report Garbage',
@@ -112,20 +122,78 @@ class HomeScreen extends StatelessWidget {
               },
             ),
 
+            // MY REPORTS
+            _menuCard(
+              icon: Icons.assignment_outlined,
+              title: 'My Reports',
+              subtitle: 'Track your submitted complaints',
+              onTap: () {
+                final user = FirebaseAuth.instance.currentUser;
+
+                if (user == null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AuthScreen(),
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyReportsScreen(),
+                  ),
+                );
+              },
+            ),
+
+            // NEARBY GARBAGE
             _menuCard(
               icon: Icons.location_on,
               title: 'Nearby Garbage',
               subtitle: 'Find reported waste locations',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const NearbyGarbageScreen(),
+                  ),
+                );
+              },
             ),
 
+            // SMART REWARDS
             _menuCard(
               icon: Icons.stars,
               title: 'Smart Rewards',
               subtitle: 'Check your earned points',
-              onTap: () {},
+              onTap: () {
+                final user = FirebaseAuth.instance.currentUser;
+
+                if (user == null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AuthScreen(),
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const SmartRewardsScreen(),
+                  ),
+                );
+              },
             ),
 
+            // MY PROFILE
             _menuCard(
               icon: Icons.person,
               title: 'My Profile',
@@ -140,6 +208,7 @@ class HomeScreen extends StatelessWidget {
                       if (user == null) {
                         return const AuthScreen();
                       }
+
                       return const ProfileScreen();
                     },
                   ),
@@ -152,6 +221,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // REUSABLE MENU CARD
   Widget _menuCard({
     required IconData icon,
     required String title,
@@ -171,7 +241,9 @@ class HomeScreen extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: Text(subtitle),
         trailing: const Icon(
@@ -185,7 +257,6 @@ class HomeScreen extends StatelessWidget {
 }
 
 // PROFILE SCREEN
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -242,7 +313,9 @@ class ProfileScreen extends StatelessWidget {
                         color: Colors.green,
                       ),
                       title: const Text('Email Address'),
-                      subtitle: Text(user.email ?? 'Not available'),
+                      subtitle: Text(
+                        user.email ?? 'Not available',
+                      ),
                     ),
                   ),
 

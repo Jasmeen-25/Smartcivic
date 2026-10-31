@@ -20,8 +20,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   bool isLogin = true;
   bool isLoading = false;
+  bool isResetLoading = false;
   bool obscurePassword = true;
 
+  // LOGIN AND SIGNUP
   Future<void> authenticate() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -62,13 +64,12 @@ class _AuthScreenState extends State<AuthScreen> {
       );
 
       Navigator.pop(context);
+
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-
       showMessage(e.message ?? 'Authentication failed.');
     } catch (e) {
       if (!mounted) return;
-
       showMessage('Something went wrong: $e');
     } finally {
       if (mounted) {
@@ -79,6 +80,46 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  // FORGOT PASSWORD
+  Future<void> forgotPassword() async {
+    final email = emailController.text.trim();
+
+    if (email.isEmpty) {
+      showMessage('Please enter your registered email first.');
+      return;
+    }
+
+    setState(() {
+      isResetLoading = true;
+    });
+
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+
+      if (!mounted) return;
+
+      showMessage(
+        'Password reset link sent! Please check your email.',
+      );
+
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      showMessage(e.message ?? 'Unable to send reset email.');
+    } catch (e) {
+      if (!mounted) return;
+
+      showMessage('Something went wrong: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isResetLoading = false;
+        });
+      }
+    }
+  }
+
+  // SNACKBAR MESSAGE
   void showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
@@ -96,14 +137,17 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F8F3),
+
       appBar: AppBar(
         title: const Text('Smart Civic Account'),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
       ),
+
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
+
           child: Column(
             children: [
               const Icon(
@@ -111,6 +155,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 size: 75,
                 color: Colors.green,
               ),
+
               const SizedBox(height: 15),
 
               Text(
@@ -131,9 +176,11 @@ class _AuthScreenState extends State<AuthScreen> {
 
               const SizedBox(height: 30),
 
+              // EMAIL FIELD
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
+
                 decoration: const InputDecoration(
                   labelText: 'Email Address',
                   prefixIcon: Icon(Icons.email_outlined),
@@ -145,21 +192,25 @@ class _AuthScreenState extends State<AuthScreen> {
 
               const SizedBox(height: 18),
 
+              // PASSWORD FIELD
               TextField(
                 controller: passwordController,
                 obscureText: obscurePassword,
+
                 decoration: InputDecoration(
                   labelText: 'Password',
                   prefixIcon: const Icon(Icons.lock_outline),
                   border: const OutlineInputBorder(),
                   filled: true,
                   fillColor: Colors.white,
+
                   suffixIcon: IconButton(
                     icon: Icon(
                       obscurePassword
                           ? Icons.visibility_off
                           : Icons.visibility,
                     ),
+
                     onPressed: () {
                       setState(() {
                         obscurePassword = !obscurePassword;
@@ -169,17 +220,50 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
 
-              const SizedBox(height: 25),
+              // FORGOT PASSWORD
+              if (isLogin)
+                Align(
+                  alignment: Alignment.centerRight,
 
+                  child: TextButton(
+                    onPressed:
+                        (isResetLoading || isLoading)
+                            ? null
+                            : forgotPassword,
+
+                    child: isResetLoading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+
+              const SizedBox(height: 15),
+
+              // LOGIN / SIGNUP BUTTON
               SizedBox(
                 width: double.infinity,
                 height: 52,
+
                 child: ElevatedButton(
                   onPressed: isLoading ? null : authenticate,
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green.shade700,
                     foregroundColor: Colors.white,
                   ),
+
                   child: isLoading
                       ? const CircularProgressIndicator(
                           color: Colors.white,
@@ -193,12 +277,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
               const SizedBox(height: 15),
 
+              // SWITCH LOGIN / SIGNUP
               TextButton(
                 onPressed: () {
                   setState(() {
                     isLogin = !isLogin;
                   });
                 },
+
                 child: Text(
                   isLogin
                       ? "Don't have an account? Sign Up"
